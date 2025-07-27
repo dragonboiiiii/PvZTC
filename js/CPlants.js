@@ -605,6 +605,48 @@ var CPlants = NewO({
             }, [b, $(b), 20, 0, a.AttackedLX, a.R, 0, 0, a.AttackedLX - 40, oGd.$Torch])
         }
     }),
+ oBuzzBuzz = InheritO(CPlants, {
+        EName: "oBuzzBuzz",
+        CName: "BuzzBeeshooter",
+        width: 71,
+        height: 71,
+        beAttackedPointR: 51,
+        SunNum: 100,
+        BKind: 0,
+        AudioArr: ["splat1", "splat2", "splat3", "plastichit", "shieldhit", "shieldhit2"],
+        PicArr: ["images/Card/Plants/BuzzBuzz.png", "images/Plants/BuzzBuzz/0.gif", "images/Plants/BuzzBuzz/Peashooter.gif", "images/Plants/Beeshooter/bee.png", "images/Plants/Beeshooter/bee.png"],
+        Tooltip: "BuzzBeeshooters shoots bees, what did ya expect?",
+        Produce: 'Peashooters, your first line of defense. They attack zombies by shooting peas. <p>Damage: <font color="#FF0000">Medium</font></p> How can a plant grow so fast and shoot so many peas? Peashooter: "Hard work, dedication, and a balanced combination of sunshine, high fiber and carbon dioxide make this healthy breakfast possible.”',
+        PrivateBirth: function(a) {
+            a.BulletEle = NewImg(0, a.PicArr[3], "left:" + (a.AttackedLX - 40) + "px;top:" + (a.pixelTop + 3) + "px;visibility:hidden;z-index:" + (a.zIndex + 2))
+        },
+        PrivateDie: function(a) {
+            a.BulletEle = null
+        },
+        NormalAttack: function() {
+            var a = this,
+                b = "PB" + Math.random();
+            EditEle(a.BulletEle.cloneNode(false), {
+                id: b
+            }, 0, EDPZ);
+            oSym.addTask(15, function(d) {
+                var c = $(d);
+                c && SetVisible(c)
+            }, [b]);
+            oSym.addTask(1, function(f, j, h, c, n, i, m, k, o, g) {
+                var l, e = GetC(n),
+                    d = oZ["getZ" + c](n, i);
+                m == 0 && g[i + "_" + e] && k != e && (PlayAudio("firepea"), m = 1, h = 40, k = e, j.src = "images/Plants/PB" + m + c + ".gif");
+                d && d.Altitude == 1 ? (d[{
+                    "-1": "getSnowPea",
+                    0: "getPea",
+                    1: "getFirePea"
+                } [m]](d, h, c), SetStyle(j, {
+                    left: o + 28 + "px"
+                }).src = ["images/Plants/PeaBulletHit.gif", "images/Plants/PeaBulletHit2.gif"][m], oSym.addTask(10, ClearChild, [j])) : (n += l = !c ? 5 : -5) < oS.W && n > 100 ? (j.style.left = (o += l) + "px", oSym.addTask(1, arguments.callee, [f, j, h, c, n, i, m, k, o, g])) : ClearChild(j)
+            }, [b, $(b), 20, 0, a.AttackedLX, a.R, 0, 0, a.AttackedLX - 40, oGd.$Torch])
+        }
+    }),
     oBird = InheritO(CPlants, {
         EName: "oBird",
         CName: "Bird",
@@ -730,22 +772,6 @@ var CPlants = NewO({
                     left: o + 28 + "px"
                 }).src = "images/Plants/PeaBulletHit1.gif", oSym.addTask(10, ClearChild, [j])) : (n += l = !c ? 5 : -5) < oS.W && n > 100 ? (j.style.left = (o += l) + "px", oSym.addTask(1, arguments.callee, [f, j, h, c, n, i, m, k, o, g])) : ClearChild(j)
             }, [b, $(b), 30, 0, a.AttackedLX, a.R, -1, 0, a.AttackedLX - 40, oGd.$Torch])
-        }
-    }),
-    oSnowRepeater = InheritO(oSnowPea, {
-        EName: "oSnowRepeater",
-        CName: "寒冰双发射手",
-        SunNum: 250,
-        PicArr: ["images/Card/Plants/SnowRepeater.png", "images/Plants/SnowRepeater/0.gif", "images/Plants/SnowRepeater/SnowPea.gif", "images/Plants/PB-10.gif", "images/Plants/PeaBulletHit1.gif"],
-        Tooltip: "双发寒冰射手可以发射两枚带有减速效果的子弹",
-        Produce: '双发寒冰射手可以发射两枚带有减速效果的子弹。<p>伤害：<font color="#FF0000">中等(每颗)</font><br>发射速度：<font color="#FF0000">两倍</font></p>双发寒冰射手是个射击爱好者，他常常会对别</font><br>人提起自己的射击精准度有多高。嗯，虽然事</font><br>实并不是这样。',
-        NormalAttack1: oSnowPea.prototype.NormalAttack,
-        NormalAttack: function(a) {
-            this.NormalAttack1();
-            oSym.addTask(15, function(c) {
-                var b = $P[c];
-                b && b.NormalAttack1()
-            }, [this.id])
         }
     }),
     oRepeater = InheritO(oPeashooter, {
@@ -1018,6 +1044,63 @@ var CPlants = NewO({
         BirthStyle: function(c, e, b, a) {
             var d = b.childNodes[1];
             d.src = "images/Plants/SunFlower/SunFlower.gif";
+            d.style.clip = "rect(0,auto,74px,0)";
+            d.style.height = "148px";
+            EditEle(b, {
+                id: e
+            }, a, EDPZ)
+        },
+        ChangePosition: function(c, a) {
+            var b = c.childNodes[1];
+            a ? SetStyle(b, {
+                clip: "rect(74px,auto,auto,auto)",
+                top: "-74px"
+            }) : SetStyle(b, {
+                clip: "rect(auto,auto,74px,auto)",
+                top: 0
+            })
+        },
+        PrivateBirth: function(a) {
+            oS.ProduceSun ? oSym.addTask(500, function(d, c, b) {
+                $P[d] && (a.ChangePosition($(d), 1), oSym.addTask(100, function(h, g, f, e) {
+                    $P[h] && (AppearSun(Math.floor(g + Math.random() * 41), f, 50, 0), oSym.addTask(100, function(i) {
+                        $P[i] && a.ChangePosition($(i), 0)
+                    }, [h]), oSym.addTask(2400, e, [h, g, f]))
+                }, [d, c, b, arguments.callee]))
+            }, [a.id, GetX(a.C) - 40, GetY(a.R)]) : a.getHurt = function(f, c, b) {
+                var e = this;
+                switch (c) {
+                    case 0:
+                        var d = e.HP -= b;
+                        !(d % 100) && (AppearSun(Math.floor(GetX(e.C) - 40 + Math.random() * 41), GetY(e.R), 25, 0), oSym.addTask(50, function(h, g) {
+                            AppearSun(Math.floor(GetX(h) - 40 + Math.random() * 41), GetY(g), 25, 0)
+                        }, [e.C, e.R]), d < 1 ? e.Die() : oSym.addTask(50, function(h, g) {
+                            AppearSun(Math.floor(GetX(h) - 40 + Math.random() * 41), GetY(g), 25, 0)
+                        }, [e.C, e.R]));
+                        break;
+                    case 3:
+                        (e.HP -= b) < 1 && e.Die();
+                        break;
+                    default:
+                        e.Die(1)
+                }
+            }
+        },
+        InitTrigger: function() {}
+    }),
+ oFireGourd = InheritO(CPlants, {
+        EName: "oFireGourd",
+        CName: "Gourd",
+        width: 73,
+        height: 74,
+        beAttackedPointR: 53,
+        SunNum: 50,
+        PicArr: ["images/Card/Plants/Gourd.png", "images/Plants/FireGourd/0.gif", "images/Plants/FireGourd/SunFlower1.gif", "images/Plants/FireGourd/SunFlower.gif"],
+        Tooltip: "Gourds makes sun that equals 50 sun.",
+        Produce: 'Sunflower produces sunlight that equals 50 each per sun.</font><br>Plant as many as you can!<p>Sunlight output：<font color="#FF0000">Medium</font></p>The sunflowers couldnt help but dance to the beat. What is that beat?</font><br>What? Hey, its the jazz beat that the earth itself uses to refresh itself.</font><br>This is a beat of a frequency that only sunflowers can hear.',
+        BirthStyle: function(c, e, b, a) {
+            var d = b.childNodes[1];
+            d.src = "images/Plants/FireGourd/SunFlower.gif";
             d.style.clip = "rect(0,auto,74px,0)";
             d.style.height = "148px";
             EditEle(b, {
@@ -5902,17 +5985,17 @@ var CPlants = NewO({
 	}),
 	oSnowRepeater = InheritO(oSnowPea, {
 		EName: "oSnowRepeater",
-		CName: "Snow Repeater",
+		CName: "Bursa",
 		SunNum: 250,
 		PicArr: [
 			"images/Card/Plants/SnowRepeater.png",
 			"images/Plants/SnowRepeater/0.gif",
 			"images/Plants/SnowRepeater/SnowPea.gif",
-			"images/Plants/PB-10.gif",
+			"images/Plants/BB00.gif",
 			"images/Plants/PeaBulletHit1.gif",
 		],
 		Tooltip:
-			"Fires two frozen peas that damage and slow the enemy at a time",
+			"Fires two slime balls that damage and slow the enemy at a time",
 		Produce:
 			'<font color="#28325A">Snow Repeaters shoot 2 frozen peas that damage and slow the enemy.</font><p>Damage: <font color="#CC241D">normal, slows zombies</font><br>Firing Speed: <font color="#CC241D">2x</font></p>A Repeater that channels its inner Snow Pea. Fires two rapid, chilling peas that slow zombies to a crawl, because sometimes frostbite is better in bursts!',
 		NormalAttack1: oSnowPea.prototype.NormalAttack,
